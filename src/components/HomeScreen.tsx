@@ -850,8 +850,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         )}
 
-        {/* Developer Attribution & About Footer */}
-        <div className="pt-6 pb-4 text-center">
+        {/* About Wordora & Copyright Footer */}
+        <footer className="pt-8 pb-8 text-center max-w-md mx-auto space-y-3 px-2">
           <button
             onClick={onOpenAbout}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium border border-slate-200/80 dark:border-slate-800 transition-all shadow-2xs group"
@@ -860,10 +860,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
             <span className="text-indigo-600 dark:text-indigo-400 font-semibold group-hover:underline">About & Contacts</span>
           </button>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
-            © 2026 Arif Ahmed Adi. All rights reserved.
+
+          {/* About Wordora Section */}
+          <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-800 text-center space-y-1">
+            <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+              About Wordora
+            </h4>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              Wordora is a document productivity application. The original content, branding, and code are protected by applicable intellectual property laws where applicable.
+            </p>
+          </div>
+
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+            © 2026 Wordora. All Rights Reserved.
           </p>
-        </div>
+        </footer>
       </main>
 
       {/* Floating Action Button (FAB) */}

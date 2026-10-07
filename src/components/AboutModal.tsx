@@ -334,6 +334,21 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
+          {/* ==============================================================
+              ABOUT WORDORA - INTELLECTUAL PROPERTY & LEGAL NOTICE
+             ============================================================== */}
+          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 p-4 space-y-2">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="font-bold text-xs tracking-tight text-slate-900 dark:text-white uppercase">
+                About Wordora
+              </h3>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Wordora is a document productivity application. The original content, branding, and code are protected by applicable intellectual property laws where applicable.
+            </p>
+          </div>
+
           {/* Direct Contact Options Quick Bar */}
           <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
@@ -372,8 +387,8 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             <span className="font-bold text-slate-900 dark:text-white">{developerName}</span>
             <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
           </p>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500">
-            © 2026 {developerName}. All rights reserved.
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+            © 2026 Wordora. All Rights Reserved.
           </p>
         </div>
       </div>

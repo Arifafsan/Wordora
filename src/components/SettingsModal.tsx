@@ -270,7 +270,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 Wordora · Made with passion by Arif Ahmed Adi
                 <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
               </p>
-              <p>© 2026 Arif Ahmed Adi. All rights reserved.</p>
+              <p>© 2026 Wordora. All Rights Reserved.</p>
             </div>
           </div>
         </div>
