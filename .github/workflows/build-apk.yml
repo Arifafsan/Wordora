@@ -13,11 +13,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
-          cache: 'npm'
+          bun-version: latest
 
       - name: Setup Java JDK 17
         uses: actions/setup-java@v4
@@ -28,13 +27,13 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Node Dependencies
-        run: npm ci
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
 
       - name: Build Web Assets & Sync Capacitor
         run: |
-          npm run build
-          npx cap sync android
+          bun run build
+          bunx cap sync android
 
       - name: Grant Execute Permission for Gradlew
         run: chmod +x ./android/gradlew
