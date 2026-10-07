@@ -23,6 +23,12 @@ out/
 .gradle/
 build/
 
+# Ensure Gradle wrapper executable and JAR are tracked by Git
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+!gradlew
+!gradlew.bat
+
 # Local configuration file (sdk path, etc)
 local.properties
 

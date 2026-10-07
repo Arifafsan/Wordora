@@ -35,13 +35,32 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build Web Assets & Sync Capacitor
+      - name: Build Web Assets
+        run: bun run build
+
+      - name: Ensure Android Native Project and Gradle Wrapper
         run: |
-          bun run build
-          bunx cap sync android
+          if [ ! -d "android" ]; then
+            echo "Native Android directory not found. Initializing via Capacitor..."
+            bunx cap add android
+          elif [ ! -f "./android/gradlew" ] || [ ! -f "./android/gradle/wrapper/gradle-wrapper.jar" ]; then
+            echo "Gradle wrapper missing in ./android. Restoring wrapper from Capacitor template..."
+            tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android gradlew gradlew.bat gradle/ build.gradle settings.gradle variables.gradle gradle.properties
+          fi
+
+      - name: Sync Capacitor Android
+        run: bunx cap sync android
 
       - name: Grant Execute Permission for Gradlew
         run: chmod +x ./android/gradlew
+
+      - name: Verify Gradle Wrapper
+        run: |
+          if [ ! -x "./android/gradlew" ]; then
+            echo "Error: ./android/gradlew does not exist or is not executable."
+            exit 1
+          fi
+          echo "Gradle wrapper verified and ready: ./android/gradlew"
 
       - name: Build Android APK (Debug)
         run: |
