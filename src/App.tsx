@@ -23,6 +23,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { PasswordPromptModal } from './components/PasswordPromptModal';
 import { AboutModal } from './components/AboutModal';
 import { SplashScreen } from './components/SplashScreen';
+import { SmartDocumentScannerModal } from './components/SmartDocumentScannerModal';
 import { App as CapApp } from '@capacitor/app';
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
   const [settings, setSettings] = useState<AppSettings>(getAppSettings());
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showScannerModal, setShowScannerModal] = useState(false);
   const [pendingUnlockDoc, setPendingUnlockDoc] = useState<DocumentModel | null>(null);
   const [showSplash, setShowSplash] = useState(() => {
     return !sessionStorage.getItem('wordora_splash_viewed');
@@ -62,6 +64,8 @@ export default function App() {
       CapApp.addListener('backButton', () => {
         if (pendingUnlockDoc) {
           setPendingUnlockDoc(null);
+        } else if (showScannerModal) {
+          setShowScannerModal(false);
         } else if (showSettingsModal) {
           setShowSettingsModal(false);
         } else if (showAboutModal) {
@@ -84,7 +88,7 @@ export default function App() {
     return () => {
       if (removeListener) removeListener();
     };
-  }, [pendingUnlockDoc, showSettingsModal, showAboutModal, activeDoc]);
+  }, [pendingUnlockDoc, showScannerModal, showSettingsModal, showAboutModal, activeDoc]);
 
   const refreshDocuments = () => {
     const docs = getAllDocuments();
@@ -111,6 +115,15 @@ export default function App() {
     if (pageSettings) {
       newDoc.pageSettings = pageSettings;
     }
+    saveDocument(newDoc);
+    refreshDocuments();
+    setActiveDoc(newDoc);
+  };
+
+  const handleScanComplete = (html: string, title: string) => {
+    const newDoc = createNewDocument('tpl_blank', title);
+    newDoc.contentHtml = html;
+    newDoc.tags = ['Scanned', 'OCR', 'Bangla'];
     saveDocument(newDoc);
     refreshDocuments();
     setActiveDoc(newDoc);
@@ -182,8 +195,16 @@ export default function App() {
           onRename={handleRename}
           onOpenSettings={() => setShowSettingsModal(true)}
           onOpenAbout={() => setShowAboutModal(true)}
+          onOpenScanner={() => setShowScannerModal(true)}
         />
       )}
+
+      {/* Smart Document Scanner Modal */}
+      <SmartDocumentScannerModal
+        isOpen={showScannerModal}
+        onClose={() => setShowScannerModal(false)}
+        onOpenInEditor={handleScanComplete}
+      />
 
       {/* Settings Dialog */}
       <SettingsModal

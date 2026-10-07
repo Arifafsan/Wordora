@@ -42,7 +42,8 @@ import {
   Briefcase,
   GraduationCap,
   Info,
-  Heart
+  Heart,
+  ScanLine
 } from 'lucide-react';
 import { DocumentModel, PageSettings } from '../types/document';
 import { TEMPLATES } from '../utils/storage';
@@ -70,6 +71,7 @@ interface HomeScreenProps {
   onRename: (id: string, newTitle: string) => void;
   onOpenSettings: () => void;
   onOpenAbout: () => void;
+  onOpenScanner?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -84,7 +86,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onDuplicate,
   onRename,
   onOpenSettings,
-  onOpenAbout
+  onOpenAbout,
+  onOpenScanner
 }) => {
   const [activeTab, setActiveTab] = useState<'recent' | 'all' | 'favorites' | 'trash'>('recent');
   const [searchQuery, setSearchQuery] = useState('');
@@ -250,6 +253,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5">
+          {/* Smart Document Scanner (OCR) Button */}
+          {onOpenScanner && (
+            <button
+              onClick={onOpenScanner}
+              className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-semibold transition-colors shadow-2xs"
+              title="Smart Document Scanner (Bengali & English OCR)"
+            >
+              <ScanLine className="w-3.5 h-3.5" />
+              <span>Scan OCR</span>
+            </button>
+          )}
+
           {/* Ready-Made Templates Button */}
           <button
             onClick={() => {
@@ -455,6 +470,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </p>
                 </div>
               </button>
+
+              {/* 2. Smart Document Scanner (OCR) */}
+              {onOpenScanner && (
+                <button
+                  onClick={onOpenScanner}
+                  className="flex-shrink-0 w-36 sm:w-44 p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50/70 to-teal-50/70 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200/80 dark:border-emerald-800/70 hover:border-emerald-500 dark:hover:border-emerald-500 text-left transition-all group flex flex-col justify-between shadow-2xs"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-xs shadow-emerald-600/30">
+                    <ScanLine className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-bold text-xs text-slate-900 dark:text-white line-clamp-1">
+                        Smart Scanner
+                      </h3>
+                      <span className="text-[9px] px-1 py-0.2 bg-emerald-200/80 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-bold rounded">
+                        OCR
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2 mt-0.5">
+                      Scan documents with Bengali & English OCR
+                    </p>
+                  </div>
+                </button>
+              )}
 
               {/* Curated Top Ready-Made Templates */}
               {featuredTemplates.map((tpl: DocumentTemplate) => (

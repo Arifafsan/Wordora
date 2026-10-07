@@ -50,7 +50,8 @@ import {
   Type,
   RemoveFormatting,
   SlidersHorizontal,
-  Smartphone
+  Smartphone,
+  ScanLine
 } from 'lucide-react';
 import { PageSettings, PaperTheme } from '../types/document';
 import { BUILT_IN_FONTS } from '../utils/fontManager';
@@ -68,6 +69,7 @@ interface RibbonToolbarProps {
   onInsertImage: (file: File) => void;
   onInsertLink: () => void;
   onInsertDateTime: (format: 'en' | 'bn') => void;
+  onOpenSmartScanner?: () => void;
   // Bangla conversions
   onConvertSelectionToBijoy: () => void;
   onConvertSelectionToUnicode: () => void;
@@ -101,6 +103,7 @@ export const RibbonToolbar: React.FC<RibbonToolbarProps> = ({
   onInsertImage,
   onInsertLink,
   onInsertDateTime,
+  onOpenSmartScanner,
   onConvertSelectionToBijoy,
   onConvertSelectionToUnicode,
   onConvertAllToBijoy,
@@ -465,6 +468,17 @@ export const RibbonToolbar: React.FC<RibbonToolbarProps> = ({
                     className="hidden"
                   />
                 </label>
+
+                {/* Smart Document Scanner (OCR) */}
+                {onOpenSmartScanner && (
+                  <button
+                    onClick={onOpenSmartScanner}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 text-xs font-semibold shrink-0"
+                    title="Scan Document & OCR Text (Bengali & English)"
+                  >
+                    <ScanLine className="w-3.5 h-3.5 text-emerald-600" /> স্ক্যানার (OCR)
+                  </button>
+                )}
 
                 {/* Link */}
                 <button

@@ -39,7 +39,8 @@ import {
   Type,
   RemoveFormatting,
   Palette,
-  Maximize2
+  Maximize2,
+  ScanLine
 } from 'lucide-react';
 import { PageSettings, PaperTheme } from '../types/document';
 
@@ -54,6 +55,7 @@ interface MobileFormatSheetProps {
   onInsertImage: (file: File) => void;
   onInsertLink: () => void;
   onInsertDateTime: (format: 'en' | 'bn') => void;
+  onOpenSmartScanner?: () => void;
   onConvertSelectionToBijoy: () => void;
   onConvertSelectionToUnicode: () => void;
   onConvertAllToBijoy: () => void;
@@ -79,6 +81,7 @@ export const MobileFormatSheet: React.FC<MobileFormatSheetProps> = ({
   onInsertImage,
   onInsertLink,
   onInsertDateTime,
+  onOpenSmartScanner,
   onConvertSelectionToBijoy,
   onConvertSelectionToUnicode,
   onConvertAllToBijoy,
@@ -446,6 +449,22 @@ export const MobileFormatSheet: React.FC<MobileFormatSheetProps> = ({
                     className="hidden"
                   />
                 </label>
+
+                {onOpenSmartScanner && (
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onOpenSmartScanner();
+                    }}
+                    className="p-3.5 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-900/40 text-teal-800 dark:text-teal-200 flex items-center gap-2.5 font-medium text-xs text-left cursor-pointer"
+                  >
+                    <ScanLine className="w-5 h-5 text-teal-600" />
+                    <div>
+                      <p className="font-bold">স্মার্ট স্ক্যানার (OCR)</p>
+                      <p className="text-[10px] text-teal-600/80">বাংলা ও ইংরেজি রিকগনিশন</p>
+                    </div>
+                  </button>
+                )}
 
                 <button
                   onClick={() => {

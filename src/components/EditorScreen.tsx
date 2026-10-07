@@ -23,7 +23,8 @@ import {
   Smartphone,
   BookOpen,
   FolderHeart,
-  Info
+  Info,
+  ScanLine
 } from 'lucide-react';
 import { DocumentModel, PageSettings, PaperTheme, DocumentStats } from '../types/document';
 import { RibbonToolbar } from './RibbonToolbar';
@@ -39,6 +40,7 @@ import { SymbolsModal } from './SymbolsModal';
 import { PasswordPromptModal } from './PasswordPromptModal';
 import { PlaceholderFillAssistantModal } from './PlaceholderFillAssistantModal';
 import { SaveAsTemplateModal } from './SaveAsTemplateModal';
+import { SmartDocumentScannerModal } from './SmartDocumentScannerModal';
 import { extractPlaceholdersFromHtml } from '../utils/templateStorage';
 import { unicodeToBijoy, bijoyToUnicode, detectCorruptedBanglaOrBijoy } from '../utils/banglaConverter';
 import { convertDocumentSutonnyToUnicode } from '../utils/docxParser';
@@ -98,6 +100,7 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPlaceholderAssistant, setShowPlaceholderAssistant] = useState(false);
   const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
+  const [showScannerModal, setShowScannerModal] = useState(false);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showSutonnyBanner, setShowSutonnyBanner] = useState<boolean>(() => {
@@ -353,6 +356,18 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
     if (editorRef.current) {
       handleContentChange(editorRef.current.innerHTML);
     }
+  };
+
+  // Insert Scanned Document OCR text into document
+  const handleInsertScanIntoDoc = (scanHtml: string) => {
+    const updatedHtml = (contentHtml ? contentHtml + '<br/>' : '') + scanHtml;
+    setContentHtml(updatedHtml);
+    if (editorRef.current) {
+      editorRef.current.innerHTML = updatedHtml;
+    }
+    handlePersist(updatedHtml);
+    setToastMessage('স্ক্যান টেক্সট ডকুমেন্টে যুক্ত করা হয়েছে (Scan inserted)');
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   // SutonnyMJ / Bijoy ↔ Unicode Conversions
@@ -656,6 +671,15 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
                 >
                   <FolderHeart className="w-4 h-4 text-indigo-500" /> Save as Template
                 </button>
+                <button
+                  onClick={() => {
+                    setShowScannerModal(true);
+                    setShowOverflowMenu(false);
+                  }}
+                  className="w-full text-left px-3.5 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2.5"
+                >
+                  <ScanLine className="w-4 h-4 text-emerald-500" /> Smart Scanner (OCR)
+                </button>
                 <div className="border-t border-slate-100 dark:border-slate-700 my-1" />
                 <button
                   onClick={() => {
@@ -713,6 +737,7 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
         onInsertImage={handleInsertImage}
         onInsertLink={handleInsertLink}
         onInsertDateTime={handleInsertDateTime}
+        onOpenSmartScanner={() => setShowScannerModal(true)}
         onConvertSelectionToBijoy={handleConvertSelectionToBijoy}
         onConvertSelectionToUnicode={handleConvertSelectionToUnicode}
         onConvertAllToBijoy={handleConvertAllToBijoy}
@@ -825,6 +850,7 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
         onInsertImage={handleInsertImage}
         onInsertLink={handleInsertLink}
         onInsertDateTime={handleInsertDateTime}
+        onOpenSmartScanner={() => setShowScannerModal(true)}
         onConvertSelectionToBijoy={handleConvertSelectionToBijoy}
         onConvertSelectionToUnicode={handleConvertSelectionToUnicode}
         onConvertAllToBijoy={handleConvertAllToBijoy}
@@ -949,6 +975,17 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
         isOpen={showSaveAsTemplate}
         onClose={() => setShowSaveAsTemplate(false)}
         document={doc}
+      />
+
+      {/* Smart Document Scanner Modal */}
+      <SmartDocumentScannerModal
+        isOpen={showScannerModal}
+        onClose={() => setShowScannerModal(false)}
+        isInsideEditor={true}
+        onInsertIntoActiveDoc={handleInsertScanIntoDoc}
+        onOpenInEditor={(html, _scanTitle) => {
+          handleInsertScanIntoDoc(html);
+        }}
       />
     </div>
   );
