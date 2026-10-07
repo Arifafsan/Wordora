@@ -1,0 +1,6 @@
+{
+  "name": "Wordora",
+  "description": "Desktop-class mobile word processor supporting rich text, mixed Bangla & English typography, SutonnyMJ legacy font conversion, DOCX/PDF import & export, tables, and pagination.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

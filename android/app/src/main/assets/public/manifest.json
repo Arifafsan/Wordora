@@ -1,0 +1,30 @@
+{
+  "short_name": "Wordora",
+  "name": "Wordora Mobile Word Processor",
+  "description": "Desktop-class mobile word processor supporting rich text, mixed Bangla & English typography, DOCX/PDF import & export, tables, and pagination.",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/wordora-logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0b192c",
+  "theme_color": "#1e40af",
+  "display": "standalone",
+  "orientation": "portrait"
+}

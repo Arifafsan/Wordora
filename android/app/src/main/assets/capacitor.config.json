@@ -1,0 +1,9 @@
+{
+	"appId": "com.wordora.app",
+	"appName": "Wordora",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https",
+		"cleartext": false
+	}
+}

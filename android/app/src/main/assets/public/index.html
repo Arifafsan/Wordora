@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch ? window.fetch.bind(window) : undefined;
+          var customFetch = originalFetch;
+          try {
+            Object.defineProperty(window, 'fetch', {
+              get: function() { return customFetch; },
+              set: function(fn) { customFetch = fn; },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (e1) {
+            try {
+              if (typeof Window !== 'undefined' && Window.prototype) {
+                Object.defineProperty(Window.prototype, 'fetch', {
+                  get: function() { return customFetch; },
+                  set: function(fn) { customFetch = fn; },
+                  configurable: true,
+                  enumerable: true
+                });
+              }
+            } catch (e2) {}
+          }
+        } catch (e) {}
+
+        window.addEventListener('error', function(event) {
+          if (event && (
+            (event.filename && event.filename.indexOf('chrome-extension://') !== -1) ||
+            (event.message && event.message.indexOf('Cannot set property fetch') !== -1)
+          )) {
+            event.preventDefault();
+            event.stopPropagation();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Wordora</title>
+    <meta name="description" content="Desktop-class mobile word processor supporting rich text, mixed Bangla & English typography, SutonnyMJ legacy font conversion, DOCX/PDF import & export, tables, and pagination." />
+    <meta property="og:title" content="Wordora" />
+    <meta property="og:description" content="Desktop-class mobile word processor supporting rich text, mixed Bangla & English typography, SutonnyMJ legacy font conversion, DOCX/PDF import & export, tables, and pagination." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/wordora-logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#1e40af" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Georgia&family=Kalpurush&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-B5ix9W2m.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-C0FnF6B9.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-CBQmNlpI.css">
+  </head>
+  <body class="bg-slate-100 text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+    <div id="root"></div>
+  </body>
+</html>
+
