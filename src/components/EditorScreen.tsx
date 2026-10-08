@@ -24,7 +24,8 @@ import {
   BookOpen,
   FolderHeart,
   Info,
-  ScanLine
+  ScanLine,
+  Download
 } from 'lucide-react';
 import { DocumentModel, PageSettings, PaperTheme, DocumentStats } from '../types/document';
 import { RibbonToolbar } from './RibbonToolbar';
@@ -560,7 +561,7 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
               <span>{stats.words} words</span>
               <span>·</span>
               <span className={saveStatus === 'saving' ? 'text-indigo-600 animate-pulse font-medium' : ''}>
-                {saveStatus === 'saved' ? 'Saved' : saveStatus === 'saving' ? 'Saving...' : 'Unsaved'}
+                {saveStatus === 'saved' ? 'Saved in App' : saveStatus === 'saving' ? 'Saving in App...' : 'Unsaved'}
               </span>
             </div>
           </div>
@@ -613,20 +614,24 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
             <Search className="w-4 h-4" />
           </button>
 
-          {/* Quick Save */}
+          {/* Quick Save (App Persistence) */}
           <button
-            onClick={() => handlePersist(contentHtml)}
+            onClick={() => {
+              handlePersist(contentHtml);
+              setToastMessage('Wordora অ্যাপে সংরক্ষিত হয়েছে (Saved in App) · ফোনে ফাইল পেতে Export ট্যাপ করুন');
+              setTimeout(() => setToastMessage(null), 3500);
+            }}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Save Document (Ctrl+S)"
+            title="Save in App (Ctrl+S) - Tap Export to save to phone"
           >
             <Save className="w-4 h-4" />
           </button>
 
-          {/* Export / Share */}
+          {/* Export / Share to Phone Storage */}
           <button
             onClick={() => setShowExportModal(true)}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Export / Share DOCX & PDF"
+            title="Export to Phone (PDF, TXT, DOCX) & Share"
           >
             <Share2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </button>
@@ -651,6 +656,15 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
                   </div>
                   <span className="text-xs font-bold text-slate-800 dark:text-slate-100 tracking-tight">Wordora</span>
                 </div>
+                <button
+                  onClick={() => {
+                    setShowExportModal(true);
+                    setShowOverflowMenu(false);
+                  }}
+                  className="w-full text-left px-3.5 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium text-emerald-600 dark:text-emerald-400"
+                >
+                  <Download className="w-4 h-4" /> Export to Phone (PDF, TXT)
+                </button>
                 {detectedPlaceholders.length > 0 && (
                   <button
                     onClick={() => {

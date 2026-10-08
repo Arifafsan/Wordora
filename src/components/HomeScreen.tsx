@@ -54,6 +54,7 @@ import { DocxImportReportModal } from './DocxImportReportModal';
 import { CloudImportModal } from './CloudImportModal';
 import { TemplateLibraryModal } from './TemplateLibraryModal';
 import { TemplatePreviewModal } from './TemplatePreviewModal';
+import { ExportShareModal } from './ExportShareModal';
 import { DocumentTemplate } from '../types/template';
 import { BUILT_IN_TEMPLATES, CATEGORIES_CONFIG } from '../data/builtInTemplates';
 import { getAllTemplates } from '../utils/templateStorage';
@@ -96,6 +97,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [activeMenuDocId, setActiveMenuDocId] = useState<string | null>(null);
   const [renamingDocId, setRenamingDocId] = useState<string | null>(null);
   const [renameText, setRenameText] = useState('');
+  const [exportingDoc, setExportingDoc] = useState<DocumentModel | null>(null);
 
   // Ready-Made Templates state
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
@@ -764,6 +766,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         </button>
                         <button
                           onClick={() => {
+                            setExportingDoc(doc);
+                            setActiveMenuDocId(null);
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-400"
+                        >
+                          <Download className="w-3.5 h-3.5 text-emerald-500" /> Export to Phone
+                        </button>
+                        <button
+                          onClick={() => {
                             onMoveToTrash(doc.id);
                             setActiveMenuDocId(null);
                           }}
@@ -925,6 +936,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             onCreateNew(tpl.id);
             setSelectedPreviewTemplate(null);
           }}
+        />
+      )}
+
+      {/* Export & Share Modal */}
+      {exportingDoc && (
+        <ExportShareModal
+          isOpen={true}
+          onClose={() => setExportingDoc(null)}
+          document={exportingDoc}
         />
       )}
     </div>

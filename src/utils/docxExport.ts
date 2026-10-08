@@ -34,6 +34,7 @@ import {
 } from 'docx';
 import { DocumentModel } from '../types/document';
 import { parseDocxFile, DocxImportResult } from './docxParser';
+import { saveExportedFile, ExportSaveResult } from './fileExport';
 
 /**
  * Exports a Wordora document model as a standard .docx binary Blob.
@@ -464,15 +465,13 @@ export async function importDocxFile(file: File): Promise<DocxImportResult> {
 }
 
 /**
- * Triggers browser download for a Blob
+ * Saves a binary Blob to device or downloads storage
  */
-export function downloadFile(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+export async function downloadFile(blob: Blob, filename: string, mimeType = 'application/octet-stream'): Promise<ExportSaveResult> {
+  return await saveExportedFile({
+    blob,
+    fileName: filename,
+    mimeType
+  });
 }
+
