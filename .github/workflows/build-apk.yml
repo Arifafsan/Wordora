@@ -38,14 +38,20 @@ jobs:
       - name: Build Web Assets
         run: bun run build
 
-      - name: Ensure Android Native Project and Gradle Wrapper
+      - name: Ensure Android Native Project and Resources
         run: |
           if [ ! -d "android" ]; then
             echo "Native Android directory not found. Initializing via Capacitor..."
             bunx cap add android
-          elif [ ! -f "./android/gradlew" ] || [ ! -f "./android/gradle/wrapper/gradle-wrapper.jar" ]; then
-            echo "Gradle wrapper missing in ./android. Restoring wrapper from Capacitor template..."
-            tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android gradlew gradlew.bat gradle/ build.gradle settings.gradle variables.gradle gradle.properties
+          else
+            if [ ! -f "./android/gradlew" ] || [ ! -f "./android/gradle/wrapper/gradle-wrapper.jar" ]; then
+              echo "Gradle wrapper missing in ./android. Restoring wrapper from Capacitor template..."
+              tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android gradlew gradlew.bat gradle/ build.gradle settings.gradle variables.gradle gradle.properties
+            fi
+            if [ ! -f "./android/app/src/main/res/values/styles.xml" ]; then
+              echo "Restoring missing Android resources from Capacitor template..."
+              tar -xzf node_modules/@capacitor/cli/assets/android-template.tar.gz -C android app/src/main/res
+            fi
           fi
 
       - name: Sync Capacitor Android
@@ -65,7 +71,11 @@ jobs:
       - name: Build Android APK (Debug)
         run: |
           cd android
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --stacktrace --info || {
+            echo "::error::Gradle build failed. Dumping build failure details..."
+            find app/build/reports app/build/intermediates -name "*.txt" -o -name "*.log" -exec head -n 100 {} + 2>/dev/null || true
+            exit 1
+          }
 
       - name: Upload Installable APK Artifact
         uses: actions/upload-artifact@v4
