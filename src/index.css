@@ -117,7 +117,8 @@
     color: black !important;
   }
 
-  .no-print {
+  .no-print,
+  .no-print-element {
     display: none !important;
   }
 

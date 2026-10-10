@@ -46,6 +46,7 @@ interface ExportShareModalProps {
   document: DocumentModel;
   editorContainerRef?: React.RefObject<HTMLDivElement | null>;
   onTogglePasswordProtection?: () => void;
+  onOpenPrintPreview?: () => void;
 }
 
 export const ExportShareModal: React.FC<ExportShareModalProps> = ({
@@ -53,7 +54,8 @@ export const ExportShareModal: React.FC<ExportShareModalProps> = ({
   onClose,
   document,
   editorContainerRef,
-  onTogglePasswordProtection
+  onTogglePasswordProtection,
+  onOpenPrintPreview
 }) => {
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [successInfo, setSuccessInfo] = useState<{ message: string; path?: string } | null>(null);
@@ -473,18 +475,22 @@ export const ExportShareModal: React.FC<ExportShareModalProps> = ({
 
               <button
                 onClick={() => {
-                  printDocument();
                   onClose();
+                  if (onOpenPrintPreview) {
+                    onOpenPrintPreview();
+                  } else {
+                    printDocument();
+                  }
                 }}
                 className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition-colors active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                     <Printer className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-slate-900 dark:text-white">Print Document</p>
-                    <p className="text-[10px] text-slate-500">System wireless print or system PDF writer</p>
+                    <p className="text-xs font-semibold text-slate-900 dark:text-white">Print Preview & Print</p>
+                    <p className="text-[10px] text-slate-500">Preview page layout, adjust setup, wireless print</p>
                   </div>
                 </div>
               </button>

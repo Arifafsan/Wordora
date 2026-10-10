@@ -51,7 +51,8 @@ import {
   RemoveFormatting,
   SlidersHorizontal,
   Smartphone,
-  ScanLine
+  ScanLine,
+  Printer
 } from 'lucide-react';
 import { PageSettings, PaperTheme } from '../types/document';
 import { BUILT_IN_FONTS } from '../utils/fontManager';
@@ -89,6 +90,7 @@ interface RibbonToolbarProps {
   fontSize: number;
   onChangeFontSize: (size: number) => void;
   onOpenMobileSheet?: () => void;
+  onOpenPrintPreview?: () => void;
 }
 
 export const RibbonToolbar: React.FC<RibbonToolbarProps> = ({
@@ -120,7 +122,8 @@ export const RibbonToolbar: React.FC<RibbonToolbarProps> = ({
   onToggleFullscreen,
   fontSize,
   onChangeFontSize,
-  onOpenMobileSheet
+  onOpenMobileSheet,
+  onOpenPrintPreview
 }) => {
   const [showColorPicker, setShowColorPicker] = useState<'text' | 'highlight' | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -623,6 +626,17 @@ export const RibbonToolbar: React.FC<RibbonToolbarProps> = ({
                   onChange={e => onUpdatePageSettings({ footerText: e.target.value })}
                   className="text-xs px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg w-24 shrink-0"
                 />
+
+                {onOpenPrintPreview && (
+                  <button
+                    onClick={onOpenPrintPreview}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 shrink-0 transition-colors"
+                    title="Print Preview (প্রিন্ট প্রিভিউ)"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>প্রিন্ট প্রিভিউ</span>
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -769,6 +783,16 @@ export const RibbonToolbar: React.FC<RibbonToolbarProps> = ({
                 >
                   <BarChart3 className="w-3.5 h-3.5 text-blue-600" /> তথ্য
                 </button>
+
+                {onOpenPrintPreview && (
+                  <button
+                    onClick={onOpenPrintPreview}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 text-xs font-semibold shrink-0 transition-colors"
+                    title="Print Preview (প্রিন্ট প্রিভিউ)"
+                  >
+                    <Printer className="w-3.5 h-3.5" /> প্রিন্ট প্রিভিউ
+                  </button>
+                )}
               </div>
             </div>
           )}

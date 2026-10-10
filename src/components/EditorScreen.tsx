@@ -42,6 +42,7 @@ import { PasswordPromptModal } from './PasswordPromptModal';
 import { PlaceholderFillAssistantModal } from './PlaceholderFillAssistantModal';
 import { SaveAsTemplateModal } from './SaveAsTemplateModal';
 import { SmartDocumentScannerModal } from './SmartDocumentScannerModal';
+import { PrintPreviewModal } from './PrintPreviewModal';
 import { extractPlaceholdersFromHtml } from '../utils/templateStorage';
 import { unicodeToBijoy, bijoyToUnicode, detectCorruptedBanglaOrBijoy } from '../utils/banglaConverter';
 import { convertDocumentSutonnyToUnicode } from '../utils/docxParser';
@@ -102,6 +103,7 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
   const [showPlaceholderAssistant, setShowPlaceholderAssistant] = useState(false);
   const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
   const [showScannerModal, setShowScannerModal] = useState(false);
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showSutonnyBanner, setShowSutonnyBanner] = useState<boolean>(() => {
@@ -112,6 +114,15 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
   const paperContainerRef = useRef<HTMLDivElement>(null);
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  const savingTransitionTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+      if (savingTransitionTimer.current) clearTimeout(savingTransitionTimer.current);
+    };
+  }, []);
 
   // Save changes helper
   const handlePersist = useCallback((newHtml: string, newTitle?: string, newSettings?: PageSettings) => {
@@ -142,13 +153,21 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
       setHistoryIndex(newHistory.length - 1);
     }
 
-    // Auto-save debounced every 2.5s
+    // Auto-save debounced every 1.5s with explicit 'Saving...' -> 'Saved' transition
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    if (savingTransitionTimer.current) clearTimeout(savingTransitionTimer.current);
+
     autoSaveTimer.current = setTimeout(() => {
       setSaveStatus('saving');
+      // Persist draft immediately to local storage
       autoSaveDraft(doc.id, newHtml, doc.pageSettings);
-      handlePersist(newHtml);
-    }, 2500);
+
+      // Keep 'Saving...' indicator visible during persistence before confirming 'Saved'
+      savingTransitionTimer.current = setTimeout(() => {
+        handlePersist(newHtml);
+        setSaveStatus('saved');
+      }, 500);
+    }, 1500);
   };
 
   // Undo / Redo
@@ -473,7 +492,15 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
       switch (e.key.toLowerCase()) {
         case 's':
           e.preventDefault();
-          handlePersist(contentHtml);
+          if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+          if (savingTransitionTimer.current) clearTimeout(savingTransitionTimer.current);
+          setSaveStatus('saving');
+          savingTransitionTimer.current = setTimeout(() => {
+            handlePersist(contentHtml);
+            setSaveStatus('saved');
+            setToastMessage('Wordora অ্যাপে সংরক্ষিত হয়েছে (Saved)');
+            setTimeout(() => setToastMessage(null), 2500);
+          }, 350);
           break;
         case 'b':
           e.preventDefault();
@@ -500,6 +527,10 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
           e.preventDefault();
           setShowFindReplace(true);
           break;
+        case 'p':
+          e.preventDefault();
+          setShowPrintPreview(true);
+          break;
       }
     }
   };
@@ -516,6 +547,8 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
         <div className="flex items-center gap-2 max-w-[50%] sm:max-w-md">
           <button
             onClick={() => {
+              if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+              if (savingTransitionTimer.current) clearTimeout(savingTransitionTimer.current);
               handlePersist(contentHtml);
               onBackToHome();
             }}
@@ -557,11 +590,41 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-[10px] text-slate-400">
+            <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
               <span>{stats.words} words</span>
               <span>·</span>
-              <span className={saveStatus === 'saving' ? 'text-indigo-600 animate-pulse font-medium' : ''}>
-                {saveStatus === 'saved' ? 'Saved in App' : saveStatus === 'saving' ? 'Saving in App...' : 'Unsaved'}
+              <span 
+                className={`inline-flex items-center gap-1 transition-colors ${
+                  saveStatus === 'saving' 
+                    ? 'text-blue-600 dark:text-blue-400 font-semibold' 
+                    : saveStatus === 'saved'
+                    ? 'text-emerald-600 dark:text-emerald-400 font-semibold'
+                    : 'text-amber-600 dark:text-amber-400 font-medium'
+                }`}
+                title={
+                  saveStatus === 'saving'
+                    ? 'Automatically saving changes to local storage...'
+                    : saveStatus === 'saved'
+                    ? 'All changes automatically saved to local storage'
+                    : 'Unsaved changes'
+                }
+              >
+                {saveStatus === 'saving' && (
+                  <RefreshCw className="w-2.5 h-2.5 animate-spin text-blue-500" />
+                )}
+                {saveStatus === 'saved' && (
+                  <Check className="w-2.5 h-2.5 text-emerald-500" />
+                )}
+                {saveStatus === 'unsaved' && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                )}
+                <span>
+                  {saveStatus === 'saving'
+                    ? 'Saving...'
+                    : saveStatus === 'saved'
+                    ? 'Saved'
+                    : 'Unsaved'}
+                </span>
               </span>
             </div>
           </div>
@@ -569,6 +632,37 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-1 sm:gap-1.5">
+          {/* Status Indicator Pill */}
+          <div
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all shrink-0 ${
+              saveStatus === 'saving'
+                ? 'bg-blue-50 dark:bg-blue-950/70 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 shadow-2xs'
+                : saveStatus === 'saved'
+                ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+            }`}
+            title={
+              saveStatus === 'saving'
+                ? 'Automatically saving changes to local storage...'
+                : saveStatus === 'saved'
+                ? 'All changes saved to local storage'
+                : 'Unsaved changes'
+            }
+          >
+            {saveStatus === 'saving' && (
+              <RefreshCw className="w-3 h-3 animate-spin text-blue-600 dark:text-blue-400" />
+            )}
+            {saveStatus === 'saved' && (
+              <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+            )}
+            {saveStatus === 'unsaved' && (
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            )}
+            <span className="text-[11px] font-semibold leading-none">
+              {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Unsaved'}
+            </span>
+          </div>
+
           {/* Quick Fill Placeholders button if tags exist */}
           {detectedPlaceholders.length > 0 && (
             <button
@@ -617,9 +711,15 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
           {/* Quick Save (App Persistence) */}
           <button
             onClick={() => {
-              handlePersist(contentHtml);
-              setToastMessage('Wordora অ্যাপে সংরক্ষিত হয়েছে (Saved in App) · ফোনে ফাইল পেতে Export ট্যাপ করুন');
-              setTimeout(() => setToastMessage(null), 3500);
+              if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+              if (savingTransitionTimer.current) clearTimeout(savingTransitionTimer.current);
+              setSaveStatus('saving');
+              savingTransitionTimer.current = setTimeout(() => {
+                handlePersist(contentHtml);
+                setSaveStatus('saved');
+                setToastMessage('Wordora অ্যাপে সংরক্ষিত হয়েছে (Saved in App) · ফোনে ফাইল পেতে Export ট্যাপ করুন');
+                setTimeout(() => setToastMessage(null), 3500);
+              }, 350);
             }}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title="Save in App (Ctrl+S) - Tap Export to save to phone"
@@ -715,12 +815,12 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
                 </button>
                 <button
                   onClick={() => {
-                    window.print();
+                    setShowPrintPreview(true);
                     setShowOverflowMenu(false);
                   }}
-                  className="w-full text-left px-3.5 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2.5"
+                  className="w-full text-left px-3.5 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium text-blue-600 dark:text-blue-400"
                 >
-                  <Printer className="w-4 h-4 text-slate-500" /> Print
+                  <Printer className="w-4 h-4" /> Print Preview & Print
                 </button>
                 <div className="border-t border-slate-100 dark:border-slate-700 my-1" />
                 <button
@@ -774,6 +874,7 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
         fontSize={fontSize}
         onChangeFontSize={handleChangeFontSize}
         onOpenMobileSheet={() => setShowMobileFormatSheet(true)}
+        onOpenPrintPreview={() => setShowPrintPreview(true)}
       />
 
       {/* SutonnyMJ / Bijoy Quick Conversion Notice Banner */}
@@ -940,6 +1041,10 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
           setShowExportModal(false);
           setShowPasswordModal(true);
         }}
+        onOpenPrintPreview={() => {
+          setShowExportModal(false);
+          setShowPrintPreview(true);
+        }}
       />
 
       {/* Password Protection Modal */}
@@ -999,6 +1104,19 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
         onInsertIntoActiveDoc={handleInsertScanIntoDoc}
         onOpenInEditor={(html, _scanTitle) => {
           handleInsertScanIntoDoc(html);
+        }}
+      />
+
+      {/* Print Preview Modal */}
+      <PrintPreviewModal
+        isOpen={showPrintPreview}
+        onClose={() => setShowPrintPreview(false)}
+        document={doc}
+        onUpdatePageSettings={settings => {
+          const updated = { ...doc.pageSettings, ...settings };
+          const newDoc = { ...doc, pageSettings: updated };
+          setDoc(newDoc);
+          handlePersist(contentHtml, title, updated);
         }}
       />
     </div>
